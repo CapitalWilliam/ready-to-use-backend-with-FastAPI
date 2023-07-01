@@ -14,8 +14,7 @@ __author__ = 'Capital_Wu'
 
 from typing import Dict, Any
 
-from sqlalchemy.ext.declarative import as_declarative
-from sqlalchemy.orm import declared_attr
+from sqlalchemy.ext.declarative import as_declarative,declared_attr
 
 class_registry: Dict = {}
 

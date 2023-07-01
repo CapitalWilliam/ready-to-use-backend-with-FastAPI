@@ -21,7 +21,8 @@ from app.models import Base
 class Recipe(Base):
     __tablename__ = 'recipes'
     id = Column(Integer, primary_key=True)
-    name = Column(String)
-    email = Column(String)
+    label = Column(String(256), nullable=False)
+    url = Column(String(256), index=True, nullable=True)
+    source = Column(String(256), nullable=True)
     submitter_id = Column(Integer, ForeignKey("users.id"), nullable=True)
     submitter = relationship('User', back_populates='recipes')

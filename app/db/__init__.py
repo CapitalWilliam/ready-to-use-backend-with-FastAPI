@@ -14,16 +14,19 @@ __author__ = 'Capital_Wu'
 
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
+
 from app.models import User
 
 engine = create_engine('postgresql://postgres:1383@localhost/mydata')
 Session = sessionmaker(bind=engine)
-session = Session()
 
-user = User(name='John', email='john@example.com')
-session.add(user)
-session.commit()
-# 查询数据
-users = session.query(User).all()
-for user in users:
-    print(user.name)
+session = Session()
+if __name__ == '__main__':
+
+    user = User(first_name='John Shit', email='john@example.com')
+    users = session.query(User).all()
+    session.add(user)
+    session.commit()
+    # 查询数据
+    for user in users:
+        print(user.first_name)
