@@ -12,9 +12,11 @@
 """
 __author__ = 'Capital_Wu'
 
+import asyncio
 from typing import Optional
 
-from fastapi import APIRouter, status, Request, Depends, Query
+import httpx
+from fastapi import APIRouter, status,  Depends, Query
 from fastapi.exceptions import HTTPException
 from sqlalchemy.orm import Session
 
@@ -61,3 +63,57 @@ async def create_recipe(
     return crud.recipe.create(db, obj_in=recipe_in)
 
 
+async def get_reddit_top_async(subreddit: str, data: dict) -> None:
+    async with httpx.AsyncClient() as client:
+        response = await client.get(
+            f"https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=day&limit=5",
+            headers={"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67"},
+        )
+
+    subreddit_recipes = response.json()
+    subreddit_data = []
+    for entry in subreddit_recipes["data"]["children"]:
+        score = entry["data"]["score"]
+        title = entry["data"]["title"]
+        link = entry["data"]["url"]
+        subreddit_data.append(f"{str(score)}: {title} ({link})")
+    data[subreddit] = subreddit_data
+
+
+def get_reddit_top(subreddit: str, data: dict) -> None:
+    response = httpx.get(
+        f"https://www.reddit.com/r/{subreddit}/top.json?sort=top&t=day&limit=5",
+        headers={"User-agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36 Edg/114.0.1823.67"},
+
+    )
+    subreddit_recipes = response.json()
+    subreddit_data = []
+    for entry in subreddit_recipes["data"]["chilren"]:
+        score = entry["data"]["score"]
+        title = entry["data"]["title"]
+        link = entry["data"]["url"]
+
+        subreddit_data.append(f"{str(score)}:{title}({link})")
+    data[subreddit] = subreddit_data
+
+
+@router.get("/ideas/async")
+async def get_reddit_data_api_async():
+    data = {}
+    await asyncio.gather(
+        get_reddit_top_async("recipes", data),
+        get_reddit_top_async("easyrecipes", data),
+        get_reddit_top_async("TopSecretRecipes", data)
+    )
+    return data
+
+
+@router.get("/ideas/")
+async def get_reddit_data_api():
+    data = {}
+
+    get_reddit_top("recipes", data)
+    get_reddit_top("easyrecipes", data)
+    get_reddit_top("TopSecretRecipes", data)
+
+    return data

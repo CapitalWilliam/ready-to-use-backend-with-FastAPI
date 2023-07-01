@@ -1,4 +1,5 @@
 # import out
+import time
 from pathlib import Path
 from typing import Optional
 
@@ -36,6 +37,15 @@ def root(
     )
 
 
+@app.middleware("http")
+async def add_process_time_header(request: Request, call_next):
+    start_time = time.time()
+    response = await call_next(request)
+    process_time = time.time() - start_time
+    response.headers["X-Process-Time"] = str(process_time)
+    return response
+
+
 # Set all CORS enabled origins
 # if settings.BACKEND_CORS_ORIGINS:
 #     app.add_middleware(
@@ -53,4 +63,4 @@ if __name__ == "__main__":
     # Use this for debugging purposes only
     import uvicorn
 
-    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug",reload=True)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug", reload=True)
