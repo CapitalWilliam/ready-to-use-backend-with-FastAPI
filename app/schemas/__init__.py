@@ -13,4 +13,4 @@
 __author__ = 'Capital_Wu'
 
 from .recipe import RecipeCreate, RecipeUpdate
-from .user import UserCreate, UserUpdate
+from .user import UserCreate, UserUpdate,User

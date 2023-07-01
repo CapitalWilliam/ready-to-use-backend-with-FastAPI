@@ -19,6 +19,11 @@ from pydantic import BaseSettings, AnyHttpUrl, validator
 
 class Settings(BaseSettings):  # 1
     API_V1_STR: str = "/api/v1"  # 2
+    JWT_SECRET: str = "TEST_SECRET_DO_NOT_USE_IN_PROD"
+    ALGORITHM: str = "HS256"
+
+    # 60 minutes * 24 hours * 8 days = 8 days
+    ACCESS_TOKEN_EXPIRE_MINUTES: int = 60 * 24 * 8
 
     BACKEND_CORS_ORIGINS: List[AnyHttpUrl] = []
 
@@ -32,6 +37,7 @@ class Settings(BaseSettings):  # 1
 
     FIRST_SUPERUSER = "admin@recipeapi.com"
     SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:1383@localhost/mydata'
+    FIRST_SUPERUSER_PW: str = "123456"
 
     class Config:
         case_sensitive = True  # 4

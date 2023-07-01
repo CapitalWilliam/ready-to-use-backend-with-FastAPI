@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name：     api
+   File Name：     auth
    Description :
    Author :       Capital_Wu
    date：          2023/7/1
@@ -12,12 +12,15 @@
 """
 __author__ = 'Capital_Wu'
 
-from fastapi import APIRouter
 
-from app.api.api_v1.endpoints import recipe
-from app.api.api_v1.endpoints import auth
+from passlib.context import CryptContext
 
-api_router = APIRouter()
-api_router.include_router(recipe.router, prefix="/recipes", tags=["recipes"])
-api_router.include_router(auth.router, prefix="/auth", tags=["auth"])
-# todo
+PWD_CONTEXT = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
+
+def verify_password(plain_password, hashed_password):
+    return PWD_CONTEXT.verify(plain_password, hashed_password)
+
+
+def get_password_hash(password):
+    return PWD_CONTEXT.hash(password)

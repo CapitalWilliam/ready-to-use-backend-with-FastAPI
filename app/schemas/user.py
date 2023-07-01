@@ -26,7 +26,19 @@ class UserBase(BaseModel):
 
 class UserCreate(UserBase):
     email: EmailStr
+    password: str
 
 
 class UserUpdate(UserBase):
     ...
+
+
+class UserInDBBase(UserBase):
+    id: int
+
+    class Config:
+        orm_mode = True
+
+
+class User(UserInDBBase):
+    pass
