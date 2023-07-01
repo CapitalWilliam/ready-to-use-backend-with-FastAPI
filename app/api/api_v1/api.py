@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 """
 -------------------------------------------------
-   File Name：     __init__.py
+   File Name：     api
    Description :
    Author :       Capital_Wu
    date：          2023/7/1
@@ -12,13 +12,9 @@
 """
 __author__ = 'Capital_Wu'
 
-from app.db import Session
+from fastapi import APIRouter
 
+from app.api.api_v1.endpoints import recipe
 
-def get_db():
-    db = Session()
-    db.current_user_id = None
-    try:
-        yield db
-    finally:
-        db.close()
+api_router = APIRouter()
+api_router.include_router(recipe.router, prefix="/recipes", tags=["recipes"])

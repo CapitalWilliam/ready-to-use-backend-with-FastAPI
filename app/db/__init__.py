@@ -16,8 +16,10 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 
 from app.models import User
+from app.core import settings
 
-engine = create_engine('postgresql://postgres:1383@localhost/mydata')
+# todo
+engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
 
 session = Session()

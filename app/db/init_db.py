@@ -20,7 +20,7 @@ from app import models
 from recipe_data import RECIPES
 
 logger = logging.getLogger(__name__)
-FIRST_SUPERUSER = "admin@recipeapi.com"
+from app.core import settings
 
 
 # make sure all SQL Alchemy models are imported (models) before initializing DB
@@ -29,12 +29,12 @@ FIRST_SUPERUSER = "admin@recipeapi.com"
 
 
 def init_db(db: Session) -> None:
-    if FIRST_SUPERUSER:
-        user = crud.user.get_by_email(db, email=FIRST_SUPERUSER)
+    if settings.FIRST_SUPERUSER:
+        user = crud.user.get_by_email(db, email=settings.FIRST_SUPERUSER)
         if not user:
             user_in = schemas.UserCreate(
                 firstname="Initial SuperUser",
-                email=FIRST_SUPERUSER,
+                email=settings.FIRST_SUPERUSER,
                 is_superuser=True,
 
             )
@@ -42,7 +42,7 @@ def init_db(db: Session) -> None:
         else:
             logger.warning(
                 "Skipping creating superuser. User with email "
-                f"{FIRST_SUPERUSER} already exists. "
+                f"{settings.FIRST_SUPERUSER} already exists. "
             )
         if not user.recipes:
             for r in RECIPES:
@@ -52,11 +52,11 @@ def init_db(db: Session) -> None:
                     url=r["url"],
                     submitter_id=user.id
                 )
-                crud.recipe.create_with_submitter(db, obj_in=recipe_in)
+                crud.recipe.create(db, obj_in=recipe_in)
     else:
         logger.warning(
-            "Skipping creating superuser.  FIRST_SUPERUSER needs to be "
+            "Skipping creating superuser.  settings.FIRST_SUPERUSER needs to be "
             "provided as an env variable. "
-            "e.g.  FIRST_SUPERUSER=admin@api.coursemaker.io"
+            "e.g.  settings.FIRST_SUPERUSER=admin@api.coursemaker.io"
 
         )

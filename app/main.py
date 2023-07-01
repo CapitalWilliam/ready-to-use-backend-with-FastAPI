@@ -2,26 +2,29 @@
 from pathlib import Path
 from typing import Optional
 
-from fastapi import FastAPI, APIRouter, status, Request, Depends,Query
+from fastapi import FastAPI, APIRouter, status, Request, Depends, Query
 from fastapi.exceptions import HTTPException
 
 from fastapi.templating import Jinja2Templates
+from starlette.middleware.cors import CORSMiddleware
 
 # import in
 from app import crud
+from app.api import deps
+from app.api.api_v1.api import api_router
+from app.core import settings
 from app.db import Session
-from app import deps
 
-from app.schemas.recipe import Recipe,RecipeSearchResults,RecipeCreate
+from app.schemas.recipe import Recipe, RecipeSearchResults, RecipeCreate
 
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
+
+root_router = APIRouter()
 app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
 
-api_router = APIRouter()
 
-
-@api_router.get("/", status_code=status.HTTP_200_OK)
+@root_router.get("/", status_code=status.HTTP_200_OK)
 def root(
         request: Request,
         db: Session = Depends(deps.get_db)
@@ -33,39 +36,21 @@ def root(
     )
 
 
-@api_router.get('/recipe/{recipe_id}', status_code=status.HTTP_200_OK,
-                response_model=Recipe)
-async def fetch_recipe(*, recipe_id: str, db: Session = Depends(deps.get_db)):
-    result = crud.recipe.get(db, recipe_id)
-    if not result:
-        raise HTTPException(
-            status_code=status.HTTP_404_NOT_FOUND,
-            detail=f'Recipe with ID {recipe_id} not found'
-        )
-    return result
+# Set all CORS enabled origins
+# if settings.BACKEND_CORS_ORIGINS:
+#     app.add_middleware(
+#         CORSMiddleware,
+#         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
+#         allow_credentials=True,
+#         allow_methods=["*"],
+#         allow_headers=["*"],
+#     )
 
+app.include_router(root_router)
+app.include_router(api_router, prefix=settings.API_V1_STR)
 
-@api_router.get('/search/',
-                status_code=status.HTTP_200_OK,
-                response_model=RecipeSearchResults)
-async def search_recipes(*,
-                         keyword: Optional[str] = Query(None,min_length=3, example='chicken'),
-                         max_results: Optional[int] = 10,
-                         db: Session = Depends(deps.get_db)):
-    recipes = crud.recipe.get_multi(db=db, limit=max_results)
-    if not keyword:
-        return {"results": recipes}
-    results = filter(lambda recipe: keyword.lower() in recipe.label.lower(), recipes)
-    return {"results": list(results)[:max_results]}
+if __name__ == "__main__":
+    # Use this for debugging purposes only
+    import uvicorn
 
-@api_router.post("/recipe",status_code=status.HTTP_201_CREATED,
-                 response_model=Recipe)
-async def create_recipe(
-        *,
-        recipe_in:RecipeCreate,
-        db:Session=Depends(deps.get_db)
-):
-    return crud.recipe.create(db,obj_in=recipe_in)
-
-
-app.include_router(api_router)
+    uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug",reload=True)
