@@ -12,7 +12,7 @@
 """
 __author__ = 'Capital_Wu'
 
-from sqlalchemy import Column, Integer, String
+from sqlalchemy import Column, Integer, String, ForeignKey
 from sqlalchemy.orm import relationship
 
 from app.models import Base
@@ -23,4 +23,5 @@ class Recipe(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String)
-    submitter_id = relationship('User',back_populates='recipes')
+    submitter_id = Column(Integer, ForeignKey("users.id"), nullable=True)
+    submitter = relationship('User', back_populates='recipes')

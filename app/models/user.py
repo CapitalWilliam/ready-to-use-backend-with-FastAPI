@@ -23,4 +23,4 @@ class User(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String)
     email = Column(String)
-    recipes = relationship('Recipe',back_populates='submitter_id')
+    recipes = relationship('Recipe',back_populates='submitter')
