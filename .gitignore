@@ -1,1 +1,5 @@
 /.idea
+/app/models/__a数据库对象
+/app/crud/__a数据库查询语句
+/app/db/__a数据库链接
+/app/schemas/__a请求I响应体
