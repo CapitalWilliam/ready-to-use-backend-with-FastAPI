@@ -17,7 +17,6 @@ import logging
 from app.db.init_db import init_db
 from app.db import Session
 
-# 在这个代码中运行init_db()
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

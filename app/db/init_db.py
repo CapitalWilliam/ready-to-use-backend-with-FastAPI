@@ -16,11 +16,10 @@ import logging
 
 from sqlalchemy.orm import Session
 from app import crud, schemas
-from app import models
 from recipe_data import RECIPES
+from app.core import settings
 
 logger = logging.getLogger(__name__)
-from app.core import settings
 
 
 # make sure all SQL Alchemy models are imported (models) before initializing DB
@@ -36,7 +35,7 @@ def init_db(db: Session) -> None:
                 firstname="Initial SuperUser",
                 email=settings.FIRST_SUPERUSER,
                 is_superuser=True,
-                password="123456"
+                password=settings.FIRST_SUPERUSER_PW
 
             )
             user = crud.user.create(db, obj_in=user_in)

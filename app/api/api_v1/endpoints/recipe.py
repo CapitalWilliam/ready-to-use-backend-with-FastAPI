@@ -27,7 +27,7 @@ from app.schemas.recipe import Recipe, RecipeCreate, RecipeSearchResults
 router = APIRouter()
 
 
-@router.get('/recipe/{recipe_id}', status_code=status.HTTP_200_OK,
+@router.get('/{recipe_id}', status_code=status.HTTP_200_OK,
             response_model=Recipe)
 async def fetch_recipe(*, recipe_id: str, db: Session = Depends(deps.get_db)):
     result = crud.recipe.get(db, recipe_id)
@@ -53,7 +53,7 @@ async def search_recipes(*,
     return {"results": list(results)[:max_results]}
 
 
-@router.post("/recipe", status_code=status.HTTP_201_CREATED,
+@router.post("/", status_code=status.HTTP_201_CREATED,
              response_model=Recipe)
 async def create_recipe(
         *,

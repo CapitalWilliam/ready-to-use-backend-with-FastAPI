@@ -23,10 +23,10 @@ from app.schemas import UserUpdate, UserCreate
 
 class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     @staticmethod
-    def get_by_email(db: Session, *, email: str) -> Optional[User]:
+    def get_by_email(db: Session, email: str) -> Optional[User]:
         return db.query(User).filter(User.email == email).first()
 
-    def is_exist(self, db: Session, *, email: str):
+    def is_exist(self, db: Session, email: str):
         if self.get_by_email(db, email):
             return True
         else:
@@ -35,12 +35,16 @@ class CRUDUser(CRUDBase[User, UserCreate, UserUpdate]):
     def create(self,
                db,
                obj_in):
+        # pre handle req_obj
         create_data = obj_in.dict()
         create_data.pop('password')
+        # handle orm_obj
         db_obj = User(**create_data)
         db_obj.hashed_password = get_password_hash(obj_in.password)
+        # add and commit
         db.add(db_obj)
         db.commit()
         return db_obj
+
 
 user = CRUDUser(User)

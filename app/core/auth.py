@@ -44,7 +44,7 @@ def authenticate(
     return user
 
 
-def create_access_token(*, sub: int) -> str:  # 2
+def create_access_token(*, sub: str) -> str:  # 2
     return _create_token(
         token_type="access_token",
         lifetime=timedelta(minutes=settings.ACCESS_TOKEN_EXPIRE_MINUTES),  # 3
@@ -60,8 +60,18 @@ def _create_token(
     payload = {}
     expire = datetime.utcnow() + lifetime
     payload["type"] = token_type
-    payload["exp"] = expire  # 4
-    payload["iat"] = datetime.utcnow()  # 5
-    payload["sub"] = str(sub)  # 6
+
+    # https://datatracker.ietf.org/doc/html/rfc7519#section-4.1.3
+    # The "exp" (expiration time) claim identifies the expiration time on
+    # or after which the JWT MUST NOT be accepted for processing
+    payload["exp"] = expire
+
+    # The "iat" (issued at) claim identifies the time at which the
+    # JWT was issued.
+    payload["iat"] = datetime.utcnow()
+
+    # The "sub" (subject) claim identifies the principal that is the
+    # subject of the JWT
+    payload["sub"] = str(sub)
 
     return jwt.encode(payload, settings.JWT_SECRET, algorithm=settings.ALGORITHM)  # 8

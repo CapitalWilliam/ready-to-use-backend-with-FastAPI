@@ -40,5 +40,9 @@ class UserInDBBase(UserBase):
         orm_mode = True
 
 
+class UserInDB(UserInDBBase):
+    hashed_password: str
+
+
 class User(UserInDBBase):
     pass

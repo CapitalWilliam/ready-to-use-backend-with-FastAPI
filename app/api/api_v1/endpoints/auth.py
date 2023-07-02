@@ -57,7 +57,9 @@ def create_user_signup(
 
 
 @router.post('/login')
-def login(form_data: OAuth2PasswordRequestForm = Depends(), db: Session = Depends(deps.get_db)) -> Any:
+def login(
+        db: Session = Depends(deps.get_db),
+        form_data: OAuth2PasswordRequestForm = Depends()) -> Any:
     """
     Get the JWT for a user with data from OAuth2 request form body.
     """

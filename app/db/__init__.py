@@ -22,8 +22,9 @@ from app.core import settings
 engine = create_engine(settings.SQLALCHEMY_DATABASE_URI)
 Session = sessionmaker(bind=engine)
 
-session = Session()
+
 if __name__ == '__main__':
+    session = Session()
 
     user = User(first_name='John Shit', email='john@example.com')
     users = session.query(User).all()

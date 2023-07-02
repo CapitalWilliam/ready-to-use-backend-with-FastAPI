@@ -18,11 +18,13 @@ from app.db import Session
 
 from app.schemas.recipe import Recipe, RecipeSearchResults, RecipeCreate
 
+# to delete: for Jinja2
 BASE_PATH = Path(__file__).resolve().parent
 TEMPLATES = Jinja2Templates(directory=str(BASE_PATH / "templates"))
 
+# init Router
 root_router = APIRouter()
-app = FastAPI(title="Recipe API", openapi_url="/openapi.json")
+app = FastAPI(title="CHANGE_NAME API", openapi_url=f"{settings.API_V1_STR}/openapi.json")
 
 
 @root_router.get("/", status_code=status.HTTP_200_OK)
@@ -30,7 +32,9 @@ def root(
         request: Request,
         db: Session = Depends(deps.get_db)
 ):
+    # crud
     recipes = crud.recipe.get_multi(db, limit=10)
+    # to delete: return frontend template Request
     return TEMPLATES.TemplateResponse(
         "index.html",
         {"request": request, "recipes": recipes}
@@ -45,22 +49,11 @@ async def add_process_time_header(request: Request, call_next):
     response.headers["X-Process-Time"] = str(process_time)
     return response
 
-
-# Set all CORS enabled origins
-# if settings.BACKEND_CORS_ORIGINS:
-#     app.add_middleware(
-#         CORSMiddleware,
-#         allow_origins=[str(origin) for origin in settings.BACKEND_CORS_ORIGINS],
-#         allow_credentials=True,
-#         allow_methods=["*"],
-#         allow_headers=["*"],
-#     )
-
+# register routers
 app.include_router(root_router)
 app.include_router(api_router, prefix=settings.API_V1_STR)
 
 if __name__ == "__main__":
     # Use this for debugging purposes only
     import uvicorn
-
     uvicorn.run(app, host="127.0.0.1", port=8000, log_level="debug", reload=True)
